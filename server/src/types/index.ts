@@ -19,4 +19,10 @@ export type Pagination = {
 
 export type JWTPayload = {
   id: string
+  mail_address: string
+}
+
+export enum MessageStatus {
+  DRAFT = 'draft',
+  SENT = 'sent'
 }

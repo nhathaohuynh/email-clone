@@ -1,17 +1,16 @@
 import mongoose, { Document, Schema } from 'mongoose'
-import { MESSAGE_DOCUMENT_NAME } from './message.model'
+import { DOCUMENT_MODLE_REGISTRATION } from '~/utils/constant.util'
 
-export const CONVERSATION_COLLECTION = 'Conversations'
-export const CONVERSATION_DOCUMENT_NAME = 'Conversation'
+export const CONVERSATION_COLLECTION = 'conversations'
 
 export interface IConversation extends Document {
   _id: Schema.Types.ObjectId
   subject: string
-  hasAttachments: boolean
-  lastMessageDate: Date
+  participants: string[]
+  has_attachments: boolean
+  last_message_date: Date
   slug: string
   messages: Schema.Types.ObjectId[]
-  _destroy: boolean
 }
 
 export const conversationSchema = new Schema<IConversation>(
@@ -22,14 +21,19 @@ export const conversationSchema = new Schema<IConversation>(
       trim: true
     },
 
-    hasAttachments: {
+    has_attachments: {
       type: Boolean,
       default: false
     },
 
-    lastMessageDate: {
+    last_message_date: {
       type: Date,
-      default: null
+      default: Date.now()
+    },
+
+    participants: {
+      type: [String],
+      required: true
     },
 
     slug: {
@@ -39,16 +43,14 @@ export const conversationSchema = new Schema<IConversation>(
     },
 
     messages: {
-      type: [{ type: Schema.Types.ObjectId, ref: MESSAGE_DOCUMENT_NAME }],
-      default: []
-    },
-
-    _destroy: {
-      type: Boolean,
-      default: false
+      type: [{ type: Schema.Types.ObjectId, ref: DOCUMENT_MODLE_REGISTRATION.MESSAGE }],
+      required: true
     }
   },
   { timestamps: true, collection: CONVERSATION_COLLECTION }
 )
 
-export const Conversation = mongoose.model<IConversation>(CONVERSATION_DOCUMENT_NAME, conversationSchema)
+export const ConversationModel = mongoose.model<IConversation>(
+  DOCUMENT_MODLE_REGISTRATION.CONVERSATION,
+  conversationSchema
+)

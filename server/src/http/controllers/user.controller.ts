@@ -15,16 +15,16 @@ export class UserController {
 
   async signUp(req: Request, res: Response) {
     const data = await this.userService.signUp(req.body)
-    return new CreatedResponse(data, CONSTANT.MSG_CREATE_USER_SUCCESS).send(req, res)
+    return new CreatedResponse(data, CONSTANT.MSG_CREATE_USER_SUCCESS).clearToken(res).send(req, res)
   }
 
   async signIn(req: Request, res: Response) {
     const data = await this.userService.signIn(req.body)
-    return new OKResponse(data.user).setToken(res, data.accessToken, data.refreshToken).send(req, res)
+    return new OKResponse(data).send(req, res)
   }
 
-  async verifyEmail(req: Request, res: Response) {
-    const data = await this.userService.verifyByEmail(req.body)
+  async twoStepVerification(req: Request, res: Response) {
+    const data = await this.userService.twoStepVerification(req.body, req.userId)
     return new OKResponse(data).send(req, res)
   }
 
@@ -46,14 +46,12 @@ export class UserController {
     let body = {}
     if (req.file) {
       const url = await uploadService.streamUpload(req.file?.buffer, env.CLOUDINARY_FOLDER)
-
       body = {
         ...req.body,
         avatar: url?.secure_url
       }
     }
 
-    console.log(body)
     const data = await this.userService.updateInformation(req.userId, {
       ...req.body,
       ...body
@@ -61,8 +59,8 @@ export class UserController {
     return new OKResponse(data).send(req, res)
   }
 
-  async forgotPassword(req: Request, res: Response) {
-    await this.userService.forgotPassword(req.body)
+  async recoveryPassword(req: Request, res: Response) {
+    await this.userService.recoveryPassword(req.body)
     return new NoContentResponse().send(req, res)
   }
 }

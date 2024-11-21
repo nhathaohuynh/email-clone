@@ -1,8 +1,6 @@
-import { ClassConstructor } from 'class-transformer'
 import { Request, Response } from 'express'
 import { cookieOptions } from '~/config/cookie.config'
 import logger from '~/config/winton.config'
-import { transformExpose } from './transform-expose.util'
 
 export class ErrorResponseBase extends Error {
   constructor(
@@ -36,11 +34,6 @@ export class SuccessResponseBase<T> {
   send(req: Request, res: Response) {
     this.logSuccess(req)
     res.status(this.statusCode).json(this)
-  }
-
-  tranformDto<V>(dto: ClassConstructor<V>) {
-    this.data = transformExpose(dto, this.data) as Partial<T>
-    return this
   }
 
   setToken(res: Response, acessToken: string, refreshToken: string) {

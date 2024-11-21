@@ -11,4 +11,20 @@ export class UserRepository extends BaseRepository<IUser> {
   findByEmail(email: string) {
     return this.findOne({ email })
   }
+
+  findByPhone(phone: string) {
+    return this.findOne({ phone })
+  }
+
+  findByPhoneAndGetPassword(phone: string) {
+    return this.findOne({ phone }, '+password')
+  }
+
+  findByIdAndGetPassword(id: string) {
+    return this.model.findById(id).select('+password')
+  }
+
+  createByModel(data: Partial<IUser>) {
+    return new UserModel(data)
+  }
 }

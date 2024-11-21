@@ -1,8 +1,8 @@
 import mongoose, { Document, ObjectId, Schema } from 'mongoose'
-import { DEFAULT_AVATAR } from '~/utils/constant.util'
+import { DEFAULT_AVATAR, DOCUMENT_MODLE_REGISTRATION, PHONE_RULE } from '~/utils/constant.util'
 
-export const USER_COLLECTION = 'Users'
-export const USER_DOCUMENT_NAME = 'user'
+export const USER_COLLECTION = 'users'
+
 export const USER_NOT_EXPOSE_FIELDS = ['password', 'verifyToken', 'expired']
 
 export interface IUser extends Document {
@@ -13,11 +13,11 @@ export interface IUser extends Document {
   avatar: string
   phone: string
   two_step_verification: boolean
-  expired: Date
-  token: string
+  createdAt: Date
+  updatedAt: Date
 }
 
-export const USER_SELECT_FIELDS = ['_id', 'email', 'username', 'avatar', 'phone']
+export const USER_SELECT_FIELDS = ['_id', 'full_name', 'email', 'avatar', 'phone', 'two_step_verification']
 
 const UserSchema: Schema = new Schema<IUser>(
   {
@@ -27,7 +27,6 @@ const UserSchema: Schema = new Schema<IUser>(
       trim: true,
       unique: true,
       index: true,
-      match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
       validate: {
         validator: function (email: string) {
           return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(email)
@@ -40,7 +39,8 @@ const UserSchema: Schema = new Schema<IUser>(
       type: String,
       required: true,
       minlength: 8,
-      trim: true
+      trim: true,
+      select: false
     },
 
     full_name: {
@@ -59,22 +59,12 @@ const UserSchema: Schema = new Schema<IUser>(
       type: String,
       trim: true,
       required: true,
-      match: /^[0-9]{10}$/
+      match: PHONE_RULE
     },
 
     two_step_verification: {
       type: Boolean,
       default: false
-    },
-
-    expired: {
-      type: Date,
-      default: null
-    },
-
-    token: {
-      type: String,
-      required: true
     }
   },
   {
@@ -83,4 +73,6 @@ const UserSchema: Schema = new Schema<IUser>(
   }
 )
 
-export const UserModel = mongoose.model<IUser>(USER_DOCUMENT_NAME, UserSchema)
+UserSchema.index({ email: 1, phone: 1 })
+
+export const UserModel = mongoose.model<IUser>(DOCUMENT_MODLE_REGISTRATION.USER, UserSchema)

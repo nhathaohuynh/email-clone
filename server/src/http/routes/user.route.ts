@@ -23,9 +23,10 @@ RouteUser.route(ROUTE_APP.users.child.signUp.path).post(
 
 RouteUser.route(ROUTE_APP.users.child.logout.path).delete(catchErrorHandler(userController.logout.bind(userController)))
 
-RouteUser.route(ROUTE_APP.users.child.verify.path).post(
+RouteUser.route(ROUTE_APP.users.child.twoStepVerification.path).post(
+  isAuthorized,
   validationPipe(),
-  catchErrorHandler(userController.verifyEmail.bind(userController))
+  catchErrorHandler(userController.twoStepVerification.bind(userController))
 )
 
 RouteUser.route(ROUTE_APP.users.child.refreshToken.path).get(
@@ -45,6 +46,9 @@ RouteUser.route(ROUTE_APP.users.child.updateInformation.path).put(
   catchErrorHandler(userController.updateInformation.bind(userController))
 )
 
-RouteUser.route(ROUTE_APP.users.child.forgotPassword.path).post()
+RouteUser.route(ROUTE_APP.users.child.recoveryPassword.path).post(
+  validationPipe(),
+  catchErrorHandler(userController.recoveryPassword.bind(userController))
+)
 
 export { RouteUser }

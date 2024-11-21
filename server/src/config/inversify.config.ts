@@ -1,56 +1,64 @@
 import { Container } from 'inversify'
 import 'reflect-metadata'
-import { IBoard } from '~/databases/models/board.model'
-import { ICard } from '~/databases/models/card.model'
-import { IColumn } from '~/databases/models/column.model'
-import { IComment } from '~/databases/models/comment'
-import { IInvitation } from '~/databases/models/invitation.model'
+import { IAttachment } from '~/databases/models/attachment.model'
+import { IStatusConversation } from '~/databases/models/conversation-status.model'
+import { IConversation } from '~/databases/models/conversation.model'
+import { ILabel } from '~/databases/models/label.model'
+import { IEmailBox } from '~/databases/models/mail-box.model'
+import { IMessage } from '~/databases/models/message.model'
 import { IUser } from '~/databases/models/user.model'
-import { BoardController } from '~/http/controllers/board.controller'
-import { CardController } from '~/http/controllers/card.controller'
-import { ColumnController } from '~/http/controllers/column.controller'
-import { CommentController } from '~/http/controllers/comment.controller'
-import { InvitationController } from '~/http/controllers/invatation.controller'
+import { AttachmentController } from '~/http/controllers/attachment.controller'
+import { LabelController } from '~/http/controllers/label.controller'
+import { MailBoxController } from '~/http/controllers/mail-box.controller'
 import { UserController } from '~/http/controllers/user.controller'
-import { IRepository } from '~/interface/IRepository'
-import { BoardRepository } from '~/repositories/board.repository'
-import { CardRepository } from '~/repositories/card.repository'
-import { ColumnRepository } from '~/repositories/column.repository'
-import { CommentRepository } from '~/repositories/comment.repository'
-import { InvitationRepository } from '~/repositories/invitation.repository'
+import { AttachmentRepository } from '~/repositories/attachment.repository'
+import { ConversationRepository } from '~/repositories/conversation.repository'
+import { LabelRepository } from '~/repositories/label.repository'
+import { MailBoxRepository } from '~/repositories/mail-box'
+import { MessageRepository } from '~/repositories/message.repository'
+import { StatusConversationRepository } from '~/repositories/status-conversation.repository'
 import { UserRepository } from '~/repositories/user.repository'
-import { BoardService } from '~/services/board.service'
-import { CardService } from '~/services/card.service'
-import { ColumnService } from '~/services/column.service'
-import { CommentService } from '~/services/comment.service'
-import { InvitationService } from '~/services/invitation.service'
+import { AttachmentService } from '~/services/attachment.service'
+import { ConversationService } from '~/services/conversation.service'
+import { LabelService } from '~/services/label.service'
+import { MailBoxService } from '~/services/mail-box.service'
+import { MessageService } from '~/services/message.service'
+import { StatusConversationService } from '~/services/status-conversation.service'
 import { UserService } from '~/services/user.service'
+import { IRepository } from '~/types/interfaces'
 import { NAME_SERVICE_INJECTION } from '~/utils/constant.util'
 
 const container = new Container()
-
-container.bind<IRepository<IBoard>>(NAME_SERVICE_INJECTION.BOARD_REPOSITORY).to(BoardRepository)
-container.bind(BoardService).to(BoardService)
-container.bind(BoardController).to(BoardController)
-
-container.bind<IRepository<IColumn>>(NAME_SERVICE_INJECTION.COLUMN_REPOSITORY).to(ColumnRepository)
-container.bind(ColumnService).to(ColumnService)
-container.bind(ColumnController).to(ColumnController)
-
-container.bind<IRepository<ICard>>(NAME_SERVICE_INJECTION.CARD_REPOSITORY).to(CardRepository)
-container.bind(CardService).to(CardService)
-container.bind(CardController).to(CardController)
 
 container.bind<IRepository<IUser>>(NAME_SERVICE_INJECTION.USER_REPOSITORY).to(UserRepository)
 container.bind(UserService).to(UserService)
 container.bind(UserController).to(UserController)
 
-container.bind<IRepository<IComment>>(NAME_SERVICE_INJECTION.COMMENT_REPOSITORY).to(CommentRepository)
-container.bind(CommentService).to(CommentService)
-container.bind(CommentController).to(CommentController)
+// message
+container.bind<IRepository<IMessage>>(NAME_SERVICE_INJECTION.MESSAGE_REPOSITORY).to(MessageRepository)
+container.bind(MessageService).to(MessageService)
 
-container.bind<IRepository<IInvitation>>(NAME_SERVICE_INJECTION.INVITATION_REPOSITORY).to(InvitationRepository)
-container.bind(InvitationService).to(InvitationService)
-container.bind(InvitationController).to(InvitationController)
+container.bind<IRepository<IConversation>>(NAME_SERVICE_INJECTION.CONVERSATION_REPOSITORY).to(ConversationRepository)
+container.bind(ConversationService).to(ConversationService)
+
+// status conversation
+container
+  .bind<IRepository<IStatusConversation>>(NAME_SERVICE_INJECTION.STATUS_CONVERSATION_REPOSITORY)
+  .to(StatusConversationRepository)
+container.bind(StatusConversationService).to(StatusConversationService)
+
+container.bind<IRepository<IEmailBox>>(NAME_SERVICE_INJECTION.MAIL_BOX_REPOSITORY).to(MailBoxRepository)
+container.bind(MailBoxService).to(MailBoxService)
+container.bind(MailBoxController).to(MailBoxController)
+
+// attachment
+container.bind<IRepository<IAttachment>>(NAME_SERVICE_INJECTION.ATTACHMENT_REPOSITORY).to(AttachmentRepository)
+container.bind(AttachmentService).to(AttachmentService)
+container.bind(AttachmentController).to(AttachmentController)
+
+// label
+container.bind<IRepository<ILabel>>(NAME_SERVICE_INJECTION.LABEL_REPOSIROTY).to(LabelRepository)
+container.bind(LabelService).to(LabelService)
+container.bind(LabelController).to(LabelController)
 
 export { container }

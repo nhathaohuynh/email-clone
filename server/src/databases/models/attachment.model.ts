@@ -1,14 +1,13 @@
 import mongoose, { Document, Schema } from 'mongoose'
-import { MESSAGE_DOCUMENT_NAME } from './message.model'
+import { DOCUMENT_MODLE_REGISTRATION } from '~/utils/constant.util'
 
-export const ATTACHMENT_COLLECTION = 'Attachments'
-export const ATTACHMENT_DOCUMENT_NAME = 'Attachment'
+export const ATTACHMENT_COLLECTION = 'attachments'
 
 export interface IAttachment extends Document {
   _id: Schema.Types.ObjectId
-  mimeType: string
+  mail_address: string
+  mime_type: string
   size: number
-  email: Schema.Types.ObjectId
   url: string
   url_id: string
   name: string
@@ -17,7 +16,7 @@ export interface IAttachment extends Document {
 
 const attachmentchema = new Schema<IAttachment>(
   {
-    mimeType: {
+    mime_type: {
       type: String,
       required: true,
       trim: true
@@ -26,9 +25,9 @@ const attachmentchema = new Schema<IAttachment>(
       type: Number,
       required: true
     },
-    email: {
-      type: Schema.Types.ObjectId,
-      ref: MESSAGE_DOCUMENT_NAME,
+    mail_address: {
+      type: String,
+      unique: true,
       required: true
     },
     url: {
@@ -55,6 +54,6 @@ const attachmentchema = new Schema<IAttachment>(
   { timestamps: true, collection: ATTACHMENT_COLLECTION }
 )
 
-attachmentchema.index({ mimeType: 1, slug: 1 }, { unique: true })
+attachmentchema.index({ mimeType: 1, slug: 1, mail_address: 1 })
 
-export const EmailAddress = mongoose.model<IAttachment>(ATTACHMENT_DOCUMENT_NAME, attachmentchema)
+export const AttachmentModel = mongoose.model<IAttachment>(DOCUMENT_MODLE_REGISTRATION.ATTACHMENT, attachmentchema)

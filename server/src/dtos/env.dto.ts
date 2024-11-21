@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsString } from 'class-validator'
-import { DtoBase } from './dto.base'
+import { DtoBase } from './base.dto'
 
 export class DtoEnv extends DtoBase {
   @IsString()

@@ -1,50 +1,67 @@
-import { Document, Schema, Types, model } from 'mongoose'
-import { CONVERSATION_DOCUMENT_NAME } from './conversation.model'
-import { LABEL_DOCUMENT_NAME } from './label.model'
+import { Document, Schema, model } from 'mongoose'
+import { DOCUMENT_MODLE_REGISTRATION } from '~/utils/constant.util'
 
-export const STATUS_CONVERSATION_COLLECTION = 'StatusConversations'
-export const STATUS_CONVERSATION_DOCUMENT_NAME = 'StatusConversation'
+export const STATUS_CONVERSATION_COLLECTION = 'status_conversations'
 
-interface IStatusConversation extends Document {
-  conversationId: Types.ObjectId
-  inboxStatus: boolean
-  sentStatus: boolean
-  draftStatus: boolean
-  starredStatus: boolean
-  trashStatus: boolean
+export interface IStatusConversation extends Document {
+  mail_address: string
+  conversation: Schema.Types.ObjectId
+  inbox_status: boolean
+  draft_message: Schema.Types.ObjectId | null
+  sent_at: Date
+  draft_status: boolean
+  sent_status: boolean
+  starred_status: boolean
+  trash_status: boolean
   labels: Schema.Types.ObjectId[]
-  isRead: boolean
+  read_status: boolean
 }
 
 const statusConversationSchema = new Schema<IStatusConversation>(
   {
-    conversationId: {
-      type: Schema.Types.ObjectId,
-      ref: CONVERSATION_DOCUMENT_NAME,
+    mail_address: {
+      type: String,
       required: true
     },
 
-    inboxStatus: {
+    sent_at: {
+      type: Date,
+      default: null
+    },
+
+    conversation: {
+      type: Schema.Types.ObjectId,
+      ref: DOCUMENT_MODLE_REGISTRATION.CONVERSATION,
+      default: null
+    },
+
+    inbox_status: {
       type: Boolean,
       default: false
     },
 
-    sentStatus: {
+    sent_status: {
       type: Boolean,
       default: false
     },
 
-    draftStatus: {
+    starred_status: {
       type: Boolean,
       default: false
     },
 
-    starredStatus: {
+    draft_message: {
+      type: Schema.Types.ObjectId,
+      ref: DOCUMENT_MODLE_REGISTRATION.MESSAGE,
+      default: null
+    },
+
+    draft_status: {
       type: Boolean,
       default: false
     },
 
-    trashStatus: {
+    trash_status: {
       type: Boolean,
       default: false
     },
@@ -53,13 +70,13 @@ const statusConversationSchema = new Schema<IStatusConversation>(
       type: [
         {
           type: Schema.Types.ObjectId,
-          ref: LABEL_DOCUMENT_NAME
+          ref: DOCUMENT_MODLE_REGISTRATION.LABEL
         }
       ],
       default: []
     },
 
-    isRead: {
+    read_status: {
       type: Boolean,
       default: false
     }
@@ -70,7 +87,14 @@ const statusConversationSchema = new Schema<IStatusConversation>(
   }
 )
 
+statusConversationSchema.index({ mail_address: 1, inbox_status: 1 })
+statusConversationSchema.index({ mail_address: 1, starred_status: 1 })
+statusConversationSchema.index({ mail_address: 1, draft_status: 1 })
+statusConversationSchema.index({ mail_address: 1, trash_status: 1 })
+statusConversationSchema.index({ mail_address: 1, sent_status: 1 })
+statusConversationSchema.index({ mail_address: 1, labels: 1 })
+
 export const StatusConversationModel = model<IStatusConversation>(
-  STATUS_CONVERSATION_COLLECTION,
+  DOCUMENT_MODLE_REGISTRATION.STATUS_CONVERSATION,
   statusConversationSchema
 )
