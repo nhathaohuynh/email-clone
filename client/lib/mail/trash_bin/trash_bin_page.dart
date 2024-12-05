@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import '../starred/starred_page.dart';
-import '../../authentication/account_management_page.dart';
-import '../../authentication/account_management_page.dart';
-import '../draft_page.dart';
-import '../email_detail_page.dart';
-import '../home_page.dart';
-import '../email_data.dart';
+import 'package:client/mail/starred/starred_page.dart';
+import 'package:client/authentication/account_management_page.dart';
+import 'package:client/mail/draft_page.dart';
+import 'package:client/mail/email_detail_page.dart';
+import 'package:client/mail/home_page.dart';
+import 'package:client/mail/email_data.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class TrashBinPage extends StatefulWidget {

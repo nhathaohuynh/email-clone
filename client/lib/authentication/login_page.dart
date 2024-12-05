@@ -1,7 +1,8 @@
+import 'package:client/services/user_service.dart';
 import 'package:flutter/material.dart';
-import 'register_page.dart';
-import '../mail/home_page.dart';
-import '../account/forgot_password_page.dart';
+import 'package:client/authentication/register_page.dart';
+import 'package:client/mail/home_page.dart';
+import 'package:client/account/forgot_password_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
@@ -12,10 +13,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final String adminPhone = "0123456789";
-  final String adminPassword = "admin123";
-  //Use validation here
-
   final phoneController = TextEditingController();
   final passwordController = TextEditingController();
 
@@ -26,6 +23,7 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
     _loadUserCredentials();
   }
+
 
   Future<void> _loadUserCredentials() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -41,8 +39,24 @@ class _LoginPageState extends State<LoginPage> {
     await prefs.setString('password', passwordController.text);
   }
 
+  Future<void> _saveUserData(Map<String, dynamic> userData) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    Map<String, dynamic> data = userData['data'];
+    prefs.setString('_id', data['_id']);
+    prefs.setString('accessToken', data['accessToken']);
+    prefs.setString('avatar', data['avatar']);
+    prefs.setString('full_name', data['full_name']);
+    prefs.setBool('two_step_verification', data['two_step_verification']);
+    prefs.setString('phone', data['phone']);
+    prefs.setString('email', data['email']);
+  }
+
   @override
   Widget build(BuildContext context) {
+    const api_url = "https://email.huynhnhathao.site/api/v1/email/users/sign-in";
+    final userService = new UserApiService(api_url);
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -91,17 +105,28 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {
-                if (phoneController.text == adminPhone &&
-                    passwordController.text == adminPassword) {
+              onPressed: () async {
+                final userData = {
+                  'phone': phoneController.text,
+                  'password': passwordController.text
+                };
+                final response = await userService.signInUser(userData);
+
+                if(response?['statusCode'] == 200){
                   _saveUserCredentials();
+                  _saveUserData(response!);
+                  //Check two step verification
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const HomePage()),
                   );
-                } else {
+                }else {
+                  final String errorMessage = response?['message'] ?? 'An error occurred';
+
+                  // Show the error in a SnackBar
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Invalid credentials')),
+                    SnackBar(content: Text(errorMessage)),
                   );
                 }
               },

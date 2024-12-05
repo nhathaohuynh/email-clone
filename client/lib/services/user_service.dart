@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class UserApiService {
-  final String baseUrl = "API URL HERE";
+  final String baseUrl;
 
   // Constructor
-  UserApiService();
+  UserApiService(this.baseUrl);
 
   // Fetch all users
   Future<List<dynamic>> fetchUsers() async {
@@ -40,8 +40,8 @@ class UserApiService {
   }
 
   // Create a new user
-  Future<Map<String, dynamic>> createUser(Map<String, dynamic> userData) async {
-    final url = Uri.parse('$baseUrl/users');
+  Future<Map<String, dynamic>?> createUser(Map<String, dynamic> userData) async {
+    final url = Uri.parse(baseUrl); // Ensure baseUrl includes the endpoint
     try {
       final response = await http.post(
         url,
@@ -50,12 +50,33 @@ class UserApiService {
       );
 
       if (response.statusCode == 201 || response.statusCode == 200) {
-        return jsonDecode(response.body);
+        // Parse and return the response body as a Map
+        return jsonDecode(response.body) as Map<String, dynamic>;
       } else {
-        throw Exception('Failed to create user: ${response.statusCode}');
+        print('Failed to create user: ${response.statusCode} - ${response.body}');
+        return null;
       }
     } catch (error) {
-      throw Exception('Error creating user: $error');
+      print('Error creating user: $error');
+      return null;
+    }
+  }
+
+  // Authenticate user
+  Future<Map<String, dynamic>?> signInUser(Map<String, dynamic> userData) async {
+    final url = Uri.parse(baseUrl); // Ensure baseUrl includes the endpoint
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(userData),
+      );
+
+      return jsonDecode(response.body) as Map<String, dynamic>;
+
+    } catch (error) {
+      print('Error sign in user: $error');
+      return null;
     }
   }
 

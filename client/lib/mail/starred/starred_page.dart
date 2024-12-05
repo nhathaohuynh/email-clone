@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../trash_bin/trash_bin_page.dart';
-import '../../authentication/account_management_page.dart';
-import '../draft_page.dart';
-import '../email_detail_page.dart';
-import '../home_page.dart';
-import '../email_data.dart';
+import 'package:client/mail/trash_bin/trash_bin_page.dart';
+import 'package:client/authentication/account_management_page.dart';
+import 'package:client/mail/draft_page.dart';
+import 'package:client/mail/email_detail_page.dart';
+import 'package:client/mail/home_page.dart';
+import 'package:client/mail/email_data.dart';
 
 class StarredPage extends StatefulWidget {
   const StarredPage({Key? key}) : super(key: key);
