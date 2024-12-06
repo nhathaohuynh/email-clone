@@ -1,15 +1,14 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'starred/starred_page.dart';
-import '../authentication/account_management_page.dart';
-import '../authentication/account_management_page.dart';
-import 'draft_page.dart';
-import 'email_detail_page.dart';
-import '../dialog/label_management_dialog.dart';
-import 'trash_bin/trash_bin_page.dart';
-import 'email_data.dart';
+import 'package:client/mail/starred/starred_page.dart';
+import 'package:client/authentication/account_management_page.dart';
+import 'package:client/mail/draft_page.dart';
+import 'package:client/mail/email_detail_page.dart';
+import 'package:client/dialog/label_management_dialog.dart';
+import 'package:client/mail/trash_bin/trash_bin_page.dart';
+import 'package:client/mail/email_data.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -23,6 +22,8 @@ class _HomePageState extends State<HomePage> {
   bool _isSearching = false;
   bool _showStarredEmails = false;
 
+  late Map<String, dynamic> userData;
+
   final TextEditingController recipientController = TextEditingController();
   final TextEditingController subjectController = TextEditingController();
   final TextEditingController contentController = TextEditingController();
@@ -30,6 +31,19 @@ class _HomePageState extends State<HomePage> {
 
   List<Map<String, dynamic>> filteredEmails = [];
   List<Map<String, dynamic>> selectedEmails = []; // Track selected emails
+
+  Future<Map<String, dynamic>> getUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    return {
+      '_id': prefs.getString('_id') ?? '',
+      'accessToken': prefs.getString('accessToken') ?? '',
+      'email': prefs.getString('email') ?? '',
+      'avatar': prefs.getString('avatar') ?? '',
+      'full_name': prefs.getString('full_name') ?? '',
+      'phone': prefs.getString('phone') ?? '',
+    };
+  }
 
   void _showNotifications() {
     showDialog(
@@ -87,6 +101,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     filteredEmails = emails.where((email) => !email['isDeleted']).toList();
     _searchController.addListener(_filterEmails);
+    userData = getUserData() as Map<String, dynamic>;
   }
 
 
@@ -227,6 +242,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: _isSearching
@@ -261,7 +277,22 @@ class _HomePageState extends State<HomePage> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            const UserInfoSection(),
+            FutureBuilder<Map<String, dynamic>>(
+              future: getUserData(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return const Center(child: Text('Error loading user data'));
+                } else if (snapshot.hasData) {
+                  final userData = snapshot.data!;
+                  return UserInfoSection(userData: userData);
+                } else {
+                  return const Center(child: Text('No user data'));
+                }
+              },
+            ),
+            UserInfoSection(userData: userData,),
             ListTile(
               leading: const Icon(Icons.inbox),
               title: const Text('Hộp thư đến'),
@@ -540,7 +571,8 @@ class _HomePageState extends State<HomePage> {
 
 
 class UserInfoSection extends StatelessWidget {
-  const UserInfoSection({Key? key}) : super(key: key);
+  final Map<String, dynamic> userData;
+  const UserInfoSection({Key? key, required this.userData}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -549,9 +581,9 @@ class UserInfoSection extends StatelessWidget {
       color: Colors.blueGrey,
       child: Column(
         children: [
-          const Row(
+          Row(
             children: [
-              Padding(
+              const Padding(
                 padding: EdgeInsets.only(right: 10.0),
                 child: CircleAvatar(
                   radius: 30,
@@ -563,11 +595,11 @@ class UserInfoSection extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Người dùng tên',
-                    style: TextStyle(color: Colors.white, fontSize: 18),
+                    userData['full_name'] ?? 'Unknown user',
+                    style: const TextStyle(color: Colors.white, fontSize: 18),
                   ),
-                  SizedBox(height: 5),
-                  Text(
+                  const SizedBox(height: 5),
+                  const Text(
                     '0123456789',
                     style: TextStyle(color: Colors.white, fontSize: 14),
                   ),

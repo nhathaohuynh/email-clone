@@ -1,4 +1,7 @@
+import 'package:client/services/user_service.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});
@@ -10,7 +13,11 @@ class RegisterPage extends StatelessWidget {
     final passwordController = TextEditingController();
     final confirmPasswordController = TextEditingController();
     final nameController = TextEditingController();
-    final addressController = TextEditingController();
+    final emailAddressController = TextEditingController();
+    final emailController = TextEditingController();
+
+    const api_url = "https://email.huynhnhathao.site/api/v1/email/users/sign-up";
+    final userService = new UserApiService(api_url);
 
     return Scaffold(
       appBar: AppBar(
@@ -45,16 +52,32 @@ class RegisterPage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               TextFormField(
-                controller: addressController,
+                controller: emailController,
                 decoration: InputDecoration(
-                  labelText: 'Address',
+                  labelText: 'Email',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your address';
+                    return 'Please enter your email';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: emailAddressController,
+                decoration: InputDecoration(
+                  labelText: 'Email Address',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your new email address';
                   }
                   return null;
                 },
@@ -119,13 +142,28 @@ class RegisterPage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Account created successfully')),
-                    );
-                    Navigator.pop(context);
+                    final userData = {
+                      'full_name': nameController.text,
+                      'email': emailController.text,
+                      'mail_address': emailAddressController.text,
+                      'password': passwordController.text,
+                      'phone': phoneController.text
+                    };
+
+                    final response = await userService.createUser(userData);
+                    if (response != null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Account created successfully')),
+                      );
+                      Navigator.pop(context);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Failed to register: ${response?['message']}')),
+                      );
+
+                    }
                   }
                 },
                 child: const Text('Register'),
